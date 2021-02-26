@@ -62,8 +62,6 @@ export default function App() {
     
     const loop = async () => {
       // Get current image
-      if (!startTime) startTime = Date.now()
-
       const nextImageTensor = images.next().value;
 
       // Handle image every 60 frames
