@@ -57,7 +57,6 @@ export default function App() {
   }, []);
 
   let frameCounter = 0;
-  let startTime = null;
 
   const handleCameraStream = (images, updatePreview, gl) => {
     
