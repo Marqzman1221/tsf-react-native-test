@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
-import { cameraWithTensors } from '@tensorflow/tfjs-react-native';
+import { cameraWithTensors, detectGLCapabilities } from '@tensorflow/tfjs-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
@@ -11,12 +11,13 @@ const TensorCamera = cameraWithTensors(Camera);
 
 export default function App() {
 
+  // State that changes the render
   const [isTfReady, setIsTfReady] = useState(false);
   const [isModelReady, setIsModelReady] = useState(false);
-  // const [textureDimensions, setTextureDimensions] = useState({ height: null, width: null });
-  const [predictions, setPredictions] = useState(null);
-  // const model = useRef(null);
-  const [model, setModel] = useState(null);
+  const [predictions, setPredictions] = useState([]);
+
+  // Other state
+  const model = useRef(null);
 
   useEffect(() => {
 
@@ -27,10 +28,8 @@ export default function App() {
     };
 
     const initializeModelAsync = async () => {
-      // model.current = await cocoSsd.load();
-      const model = await cocoSsd.load();
+      model.current = await cocoSsd.load();
       console.log('Model: READY');
-      setModel(model);
       setIsModelReady(true);
     };
 
@@ -57,34 +56,36 @@ export default function App() {
     checkPermissionsAsync();
   }, []);
 
-  function handleCameraStream (images, updatePreview, gl) {
+  let frameCounter = 0;
+  let startTime = null;
+
+  const handleCameraStream = (images, updatePreview, gl) => {
     
     const loop = async () => {
       // Get current image
+      if (!startTime) startTime = Date.now()
+
       const nextImageTensor = images.next().value;
 
-      // Handle image
-      // if (nextImageTensor) {
-      //   // Use model to detect predictions
-      //   // const newPredictions = await model.current.detect(nextImageTensor);
-      //   const newPredictions = await model.detect(nextImageTensor);
+      // Handle image every 60 frames
+      if (nextImageTensor && frameCounter % 60 == 0) {
 
-      //   if (newPredictions && newPredictions.length > 0) {
-      //     setPredictions(newPredictions.filter(p => p.value >= 0.5));
-      //     console.log('Number of Predictions:', predictions.length);
-      //   }
+        // // TODO Get predictions from model
+        // const newPredictions = await model.detect(nextImageTensor);
+        // setPredictions(newPredictions)
+      }
 
-
-      // }
+      frameCounter += 1;
 
       // Clear image from memory
-      tf.dispose([nextImageTensor]);
+      tf.dispose(nextImageTensor);
+
 
       requestAnimationFrame(loop);
-    }
+    };
 
     try {
-      if (isModelReady) loop();
+      if (isTfReady && isModelReady) loop();
     } catch (error) {
       console.warn(error);
     }
@@ -103,7 +104,7 @@ export default function App() {
     return (Platform.OS === 'ios' ? 1080 : 1600);
   }
 
-  if (!isModelReady) {
+  if (!isTfReady || !isModelReady) {
     return (
       <View style={styles.container}>
         <Text>Awaiting Tensorflow...</Text>
@@ -130,6 +131,9 @@ export default function App() {
           onReady={handleCameraStream}
           autorender={true}
         />
+        <View style={styles.button}>
+          <Text style={styles.text}> Number of Predictions: {predictions ? predictions.length : 'NA'} </Text>
+        </View>  
         { 
           // Overlay prediction highlights 
 
@@ -217,12 +221,13 @@ const styles = StyleSheet.create({
   },
   button: {
     // flex: 0.1,
-    alignSelf: 'flex-end',
+    // alignSelf: 'flex-start',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   text: {
     fontSize: 18,
     backgroundColor: 'transparent',
-    color: 'black',
+    color: 'white',
   },
 });
