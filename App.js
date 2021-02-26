@@ -23,7 +23,7 @@ export default function App() {
 
     const initializeTfAsync = async () => {
       await tf.ready();
-      console.log('Tensorflow: READY')
+      console.log('Tensorflow: READY');
       setIsTfReady(true);
     };
 
@@ -68,8 +68,8 @@ export default function App() {
       if (nextImageTensor && frameCounter % 60 == 0) {
 
         // // TODO Get predictions from model
-        // const newPredictions = await model.detect(nextImageTensor);
-        // setPredictions(newPredictions)
+        // const newPredictions = await model.current.detect(nextImageTensor);
+        // setPredictions(newPredictions);
       }
 
       frameCounter += 1;
