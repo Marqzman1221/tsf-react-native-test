@@ -9,4 +9,4 @@
 
 [talma/whatPicture - GitHub Repository](https://github.com/talma/whatPicture)
 
-[btroia/react-native-image-recognition-object-detection - GitHub Repostory](https://github.com/btroia/react-native-image-recognition-object-detection)
+[btroia/react-native-image-recognition-object-detection - GitHub Repository](https://github.com/btroia/react-native-image-recognition-object-detection)
