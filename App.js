@@ -116,7 +116,7 @@ export default function App() {
     // TENSOR CAMERA
   
     return (
-      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+      <View style={ styles.container }>
         <TensorCamera
           // Standard Camera props
           style={styles.cameraView}
@@ -190,7 +190,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    height: window,
+    height: '100%',
+    width: '100%',
+    position: 'absolute',
     backgroundColor: '#000',
     // alignItems: 'center',
     // justifyContent: 'center',
