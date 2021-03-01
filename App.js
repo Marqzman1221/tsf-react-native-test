@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Camera } from 'expo-camera';
-import { cameraWithTensors, detectGLCapabilities } from '@tensorflow/tfjs-react-native';
+import { bundleResourceIO, cameraWithTensors, detectGLCapabilities } from '@tensorflow/tfjs-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, Text, View } from 'react-native';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
@@ -14,6 +14,7 @@ export default function App() {
   // State that changes the render
   const [isTfReady, setIsTfReady] = useState(false);
   const [isModelReady, setIsModelReady] = useState(false);
+  const [previewIsReady, setPreviewIsReady] = useState(false);
   const [predictions, setPredictions] = useState([]);
 
   // Other state
@@ -25,6 +26,12 @@ export default function App() {
       await tf.ready();
       console.log('Tensorflow: READY');
       setIsTfReady(true);
+
+      const modelJson = require('./models/ssd_mobilenet_v2_coco_4x_compressed/model.json');
+      const modelWeights = require('./models/ssd_mobilenet_v2_coco_4x_compressed/group1-shard1of1.bin');
+      model.current = await tf.loadLayersModel(bundleResourceIO(modelJson, modelWeights));
+      setIsModelReady(true);
+      console.log('Model: READY');
     };
 
     const initializeModelAsync = async () => {
@@ -52,7 +59,7 @@ export default function App() {
     };
 
     initializeTfAsync();
-    initializeModelAsync();
+    // initializeModelAsync();
     checkPermissionsAsync();
   }, []);
 
@@ -77,7 +84,6 @@ export default function App() {
       // Clear image from memory
       tf.dispose(nextImageTensor);
 
-
       requestAnimationFrame(loop);
     };
 
@@ -101,6 +107,11 @@ export default function App() {
     return (Platform.OS === 'ios' ? 1080 : 1600);
   }
 
+  const cameraIsReady = () => {
+    setPreviewIsReady(true);
+    console.log('Camera: READY')
+  }
+
   if (!isTfReady || !isModelReady) {
     return (
       <View style={styles.container}>
@@ -110,9 +121,6 @@ export default function App() {
     );
   }
   else {
-
-    // TENSOR CAMERA
-  
     return (
       <View style={ styles.container }>
         <TensorCamera
@@ -126,66 +134,13 @@ export default function App() {
           resizeWidth={128}
           resizeDepth={3}
           onReady={handleCameraStream}
-          autorender={true}
+          autorender={false}
         />
-        <View style={styles.button}>
+        <View>
           <Text style={styles.text}> Number of Predictions: {predictions ? predictions.length : 'NA'} </Text>
-        </View>  
-        { 
-          // Overlay prediction highlights 
-
-    //      <View style={{
-    //       position: "relative", zIndex: 1, elevation: 1,
-    //     }}>
-    //       {isModelReady &&
-    //         predictions &&
-    //         predictions.map((p, index) => {
-    //           return (
-    //             <View
-    //               key={index}
-    //               style={{
-    //                 zIndex: 1,
-    //                 elevation: 1,
-    //                 left: p.bbox[0],
-    //                 top: p.bbox[1],
-    //                 width: p.bbox[2],
-    //                 height: p.bbox[3],
-    //                 borderWidth: 2,
-    //                 borderColor: getRandomHexColor(),
-    //                 backgroundColor: "transparent",
-    //                 position: "absolute",
-    //               }}
-    //             />
-    //           );
-    //         })}
-    //     </View>
-        }
+        </View>
       </View>
-      
     )
-
-    // BASIC CAMERA WITH OVERLAY TEXT
-
-    // return (
-    //   <View style={styles.container}>
-    //     <Camera style={styles.camera} type={Camera.Constants.Type.back}>
-          
-    //       <View 
-    //         style={{
-    //           flex: 1,
-    //           backgroundColor: 'transparent',
-    //           flexDirection: 'row',
-    //           margin: 20,
-    //         }}
-    //       >
-
-    //         <View style={styles.button}>
-    //           <Text style={styles.text}> Number of Predictions: {predictions ? predictions.length : 'NA'} </Text>
-    //         </View>          
-    //       </View>
-    //     </Camera>
-    //   </View>
-    // )
   }
 }
 
