@@ -1,5 +1,7 @@
 # tsf-react-native-test
 
+Prototype Expo app for Senior Design Project.
+
 ## Helpful Links
 [Tensorflow.js React Native API](https://js.tensorflow.org/api_react_native/0.3.0/)
 
