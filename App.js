@@ -11,12 +11,10 @@ const TensorCamera = cameraWithTensors(Camera);
 
 export default function App() {
 
-  // State that changes the render
   const [isTfReady, setIsTfReady] = useState(false);
   const [isModelReady, setIsModelReady] = useState(false);
   const [predictions, setPredictions] = useState([]);
 
-  // Other state
   const model = useRef(null);
 
   useEffect(() => {
@@ -67,9 +65,9 @@ export default function App() {
       // Handle image every 60 frames
       if (nextImageTensor && frameCounter % 60 == 0) {
 
-        // // TODO Get predictions from model
-        // const newPredictions = await model.current.detect(nextImageTensor);
-        // setPredictions(newPredictions);
+        // Get predictions from model
+        const newPredictions = await model.current.detect(nextImageTensor);
+        setPredictions(newPredictions);
       }
 
       frameCounter += 1;
@@ -110,9 +108,6 @@ export default function App() {
     );
   }
   else {
-
-    // TENSOR CAMERA
-  
     return (
       <View style={ styles.container }>
         <TensorCamera
@@ -130,62 +125,10 @@ export default function App() {
         />
         <View style={styles.button}>
           <Text style={styles.text}> Number of Predictions: {predictions ? predictions.length : 'NA'} </Text>
-        </View>  
-        { 
-          // Overlay prediction highlights 
-
-    //      <View style={{
-    //       position: "relative", zIndex: 1, elevation: 1,
-    //     }}>
-    //       {isModelReady &&
-    //         predictions &&
-    //         predictions.map((p, index) => {
-    //           return (
-    //             <View
-    //               key={index}
-    //               style={{
-    //                 zIndex: 1,
-    //                 elevation: 1,
-    //                 left: p.bbox[0],
-    //                 top: p.bbox[1],
-    //                 width: p.bbox[2],
-    //                 height: p.bbox[3],
-    //                 borderWidth: 2,
-    //                 borderColor: getRandomHexColor(),
-    //                 backgroundColor: "transparent",
-    //                 position: "absolute",
-    //               }}
-    //             />
-    //           );
-    //         })}
-    //     </View>
-        }
+        </View>
       </View>
       
     )
-
-    // BASIC CAMERA WITH OVERLAY TEXT
-
-    // return (
-    //   <View style={styles.container}>
-    //     <Camera style={styles.camera} type={Camera.Constants.Type.back}>
-          
-    //       <View 
-    //         style={{
-    //           flex: 1,
-    //           backgroundColor: 'transparent',
-    //           flexDirection: 'row',
-    //           margin: 20,
-    //         }}
-    //       >
-
-    //         <View style={styles.button}>
-    //           <Text style={styles.text}> Number of Predictions: {predictions ? predictions.length : 'NA'} </Text>
-    //         </View>          
-    //       </View>
-    //     </Camera>
-    //   </View>
-    // )
   }
 }
 
